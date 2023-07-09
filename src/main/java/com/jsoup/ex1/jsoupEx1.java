@@ -5,6 +5,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Properties;
@@ -19,7 +22,7 @@ import com.jsoup.crawler.utils.Crawler;
 public class jsoupEx1 {
 
 	private static Properties options = null;
-	private static String tottalTitle = "핵무기도 만들어 드릴까요?";
+	private static String tottalTitle = "과거를 훔치는 천재배우";
 	public static void main(String[] args) throws Exception {
 
         // 파일을 저장할 경로
@@ -30,12 +33,12 @@ public class jsoupEx1 {
         // BufferedWriter 생성
         // 1754958 재벌집막내아들 1화
         // 정지됨 회차 : https://booktoki166.com/novel/1755069
-        int pageNum = 729888; //2170845;
+        int pageNum = 9506136; //2170845;
         int treeHit = 0;
         int cnt = 1;
         StringBuilder stringBuilder = new StringBuilder();
         String inflearnUrl = "";
-        String crawkubgOageUrl = "https://booktoki287.com/novel/";
+        String crawkubgOageUrl = "https://booktoki293.com/novel/";
         // int prevPageNum = 0;
         // int retryCnt = 0;
         try {
@@ -46,8 +49,12 @@ public class jsoupEx1 {
 		        }
                 //prevPageNum = pageNum;
 				inflearnUrl = crawkubgOageUrl + pageNum ;
-				System.out.println("inflearnUrl : " + inflearnUrl);
+                LocalTime now = LocalTime.now();
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH시 mm분 ss초");
+                String time = now.format(formatter);
+				System.out.println(time+" : inflearnUrl : " + inflearnUrl);
                 try {
+
                     stringBuilder  = run(inflearnUrl);
                     writer.write(stringBuilder.toString());
                 } catch (NullPointerException nie) {
@@ -106,7 +113,7 @@ public class jsoupEx1 {
        // Elements title =  document.getElementsByClass("toon-title");
         Elements titles =  document.selectXpath("//*[@id=\"at-main\"]/div[2]/section/article/div[1]/div/div[2]/div");
         String title = "";
-
+        StringBuilder stringBuilder = new StringBuilder();
          for(Element novelText : titles) {
             title = novelText.text();
             System.out.println(novelText.text());
@@ -116,19 +123,18 @@ public class jsoupEx1 {
          System.out.println(" tottalTitle : " + "[ "  + tottalTitle + "]");
          System.out.println(" 결과 tottalTitle.indexOf(title) : " + "[ "  + tottalTitle.indexOf(title) + "]");*/
          if (title.indexOf(tottalTitle) == -1 ){
-             System.out.println(title + " 중복 체크로 인한 멈춤 " + tottalTitle.indexOf(title));
-             throw new NullPointerException();
-             // System.exit(0);
+             System.out.println("조회:"+title + "과 요청타이틀 : " + tottalTitle+ "달라 패스");
+         }else{
+             Elements novelContents =  document.getElementById("novel_content").select("P");
+             stringBuilder.append(title.replaceAll(tottalTitle, "")).append("\n");
+
+             Map<String, String> download_info = null;
+             for(Element novelText : novelContents) {
+                 stringBuilder.append(novelText.text()).append("\n");
+             }
          }
 
-        Elements novelContents =  document.getElementById("novel_content").select("P");
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(title.replaceAll(tottalTitle, "")).append("\n");
 
-        Map<String, String> download_info = null;
-        for(Element novelText : novelContents) {
-        	stringBuilder.append(novelText.text()).append("\n");
-        }
 		return stringBuilder;
 
     }
